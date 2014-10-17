@@ -4,41 +4,47 @@ Sample rules and graph translations
 Concatenation
 -------------
 
-RULE 1
+::
+
+ RULE 1
   <c1>;
   <c2> WITHIN t
 
-graph with time goals
-
+graph with time goals::
  (start)--c1-->( s1 )--c2-->( end, t)
 
-graph with expires, i.e. node s1 should be left before t.
-expire time is the maximum of the time goals of all node successors.
+graph with expire time values i.e. node s1 should be left before t::
 
  (start)--c1-->( s1, t )--c2-->( end )
 
-RULE 2
- <c1>;
- <c2> WITHIN t1;
- <c3> WITHIN t2
 
-graph with time goals
+Expire time is the maximum of the time goals of all node successors::
 
-( start )--c1-->( s1 )--c2->( s2, t1 )--c3-->( end, t1 + t2 )
+ RULE 2
+  <c1>;
+  <c2> WITHIN t1;
+  <c3> WITHIN t2
 
-graph with expires
+graph with time goals::
 
-( start )--c1-->( s1, t1 )--c2->( s2, t1 + t2 )--c3-->( end )
+ ( start )--c1-->( s1 )--c2->( s2, t1 )--c3-->( end, t1 + t2 )
+
+graph with expires::
+
+ ( start )--c1-->( s1, t1 )--c2->( s2, t1 + t2 )--c3-->( end )
 
 
 Disjunction
 -----------
 
-RULE 3
- <c1>;
- <c2> OR <c3> WITHIN t
+::
 
-graph with time goals
+ RULE 3
+   <c1>;
+   <c2> OR <c3> WITHIN t
+
+graph with time goals::
+
                        / c2 \
                       /      \
   (start)--c1-->( s1 )        ->( end, t1 + t2 )
@@ -48,7 +54,8 @@ graph with time goals
 
 Repetition
 ----------
-RULE 4
- <c1> <n> TIMES WITHIN t
+::
+  RULE 4
+    <c1> <n> TIMES WITHIN t
 
  (start)--c1,n-->( end, t )
