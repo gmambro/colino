@@ -11,6 +11,7 @@ Concatenation
   <c2> WITHIN t
 
 graph with time goals::
+
  (start)--c1-->( s1 )--c2-->( end, t)
 
 graph with expire time values i.e. node s1 should be left before t::
@@ -54,7 +55,9 @@ graph with time goals::
 
 Repetition
 ----------
+
 ::
+
   RULE 4
     <c1> <n> TIMES WITHIN t
 
