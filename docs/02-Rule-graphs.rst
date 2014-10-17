@@ -1,4 +1,8 @@
 Sample rules and graph translations
+===================================
+
+Concatenation
+-------------
 
 RULE 1
   <c1>;
@@ -26,6 +30,10 @@ graph with expires
 
 ( start )--c1-->( s1, t1 )--c2->( s2, t1 + t2 )--c3-->( end )
 
+
+Disjunction
+-----------
+
 RULE 3
  <c1>;
  <c2> OR <c3> WITHIN t
@@ -38,6 +46,8 @@ graph with time goals
                        \ c3 /
 
 
+Repetition
+----------
 RULE 4
  <c1> <n> TIMES WITHIN t
 
