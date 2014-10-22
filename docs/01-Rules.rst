@@ -19,30 +19,28 @@ other channels and can filter events.
 Conditions
 ----------
 
-A condition is a set of tests on attributes.
+A condition is a set of tests on attributes with an optional time or
+repetition constraint
 
-condition =  condition_expr
-condition_expr =  attribute_test  
-                          '(' condition_expr ')'
-                         | condition_expr or condition_expr
-                         | condition_expr and condition_expr
+Syntax::
+ condition =  'match' test [ [ 'repeated' INTEGER 'times' ] 'within' time_limit ] 
 
-attribute_test =  attribute comparison string
-                         | attribute comparison int
-                         | attribute comparison timestamp
-                         | attribute '~' regex
-                         | attribute 'in' timeinterval
+ test =   test 'or' test
+           | test 'and' test
+	   | 'not' test
+	   | identifier comp_operator expression
+           | '~'   re_pattern
+           | '!~'  re_pattern
 
+  comp_op  =  '<'  | '>'  | '='  | '>=' | '<='  | '!=' | 'in' | 'not' 'in'
+
+	   
 
 Rules
 -----
 
-A rule describe a pattern of conditions that will lead to an action.
+A rule describes a pattern of conditions that will lead to an action.
 
 Syntax::
- rule = "rule", condition-chain, "action", action 
- condition-chain = condition, [repeat],  {  ';', condition, repeat within?) } 
+ rule = "rule", condition_list, "action", action_list
 
- repeat =  "repeat" int
-
- within = "within" int ("s"|"m"|"h")
