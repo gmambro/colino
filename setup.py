@@ -1,18 +1,11 @@
 from setuptools import setup, find_packages # Always prefer setuptools over distutils
-from codecs import open # To use a consistent encoding
-from os import path
-here = path.abspath(path.dirname(__file__))
-
-# Get the long description from the relevant file
-with open(path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
-    long_description = f.read()
-
+    
 setup(
     name = "colino",
     version = "0.0.1",
     
     description = "Event correlator",
-    long_description = long_description,
+    long_description = open("DESCRIPTION.rst").read(),
 
     author = "Gabriele Mambrini",
     author_email = "g.mambrini@gmail.com",
