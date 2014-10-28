@@ -25,25 +25,3 @@ class RuleGraph(object):
         self.start = Node()
         self.end = Node()
         
-
-class EdgeStatus(object):
-
-    def __init__(self, edge):
-        self.edge = edge
-        self.count = count
-        
-        
-class GraphStatus(object):
-
-    def __init__(self, graph):
-        self._current_node = graph.start  
-        self._edge_status = None
-        self._context = {}
-        self._start_time = None
-
-    def evaluate(self, event):
-        # check all current edge status
-        # TODO
-        # check all outgoing edges
-        # TODO
-        pass
