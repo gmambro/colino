@@ -1,12 +1,29 @@
 import unittest
 from colino.conf.parser import colinoParser
+from colino.conf.semantics import ColinoSemantics
+
 
 class GrammarTests(unittest.TestCase):
 
     def setUp(self):
-          # TODO
         self.parser = colinoParser()
-    
+        self.semantics = ColinoSemantics()
+        
+    def tearDown(self):
+        import json
+        print("AST")
+        print(self.ast)
+        print("")
+
+    def parse(self, text, *args):
+        self.ast = self.parser.parse(text,
+                                     semantics=self.semantics,
+                                    # trace=True,
+                                     *args)
+
+    def test_escape(self):
+        self.parse(r"\t", "ESC")
+                
     def test_simple_rule(self):
         text = '''
            rule test
@@ -14,7 +31,7 @@ class GrammarTests(unittest.TestCase):
               action nil
            end
         '''
-        print self.parser.parse(text, 'configuration')
+        self.ast = self.parser.parse(text, 'configuration')
 
     def test_condition_list(self):
         text = '''
@@ -24,18 +41,24 @@ class GrammarTests(unittest.TestCase):
               action nil
            end
         '''
-        print self.parser.parse(text, 'configuration')
-  
+        self.parse(text, 'configuration')
 
-              
+                    
     def test_regex_condition(self):
         text = '''
               match msg ~ /\w+=\w+/
         '''
-        print self.parser.parse(text, 'condition')
+        self.parse(text, 'condition')
         
-      
-
+     
+    def test_within_rule(self):
+        text = '''
+           rule test
+              match msg = 'hello' within 4s
+              action nil
+           end
+        '''
+        self.parse(text, 'configuration')
 
         
 def suite():

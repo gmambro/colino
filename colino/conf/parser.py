@@ -15,7 +15,7 @@ from __future__ import print_function, division, absolute_import, unicode_litera
 from grako.parsing import graken, Parser
 
 
-__version__ = (2014, 10, 23, 8, 20, 23, 3)
+__version__ = (2014, 10, 30, 21, 12, 29, 3)
 
 __all__ = [
     'colinoParser',
@@ -51,30 +51,48 @@ class colinoParser(Parser):
     def _rule_(self):
         self._token('rule')
         self._identifier_()
+        self.ast['name'] = self.last_node
         self._condition_list_()
+        self.ast['conditions'] = self.last_node
         self._action_list_()
+        self.ast['actions'] = self.last_node
         self._token('end')
+
+        self.ast._define(
+            ['name', 'conditions', 'actions'],
+            []
+        )
 
     @graken()
     def _condition_list_(self):
-
-        def block0():
-            self._condition_()
-            self._token(';')
-        self._closure(block0)
         self._condition_()
+        self.ast.setlist('@', self.last_node)
+
+        def block1():
+            self._token(';')
+            self._condition_()
+            self.ast.setlist('@', self.last_node)
+        self._closure(block1)
 
     @graken()
     def _condition_(self):
         self._token('match')
         self._test_()
+        self.ast['test'] = self.last_node
         with self._optional():
             with self._optional():
                 self._token('repeated')
                 self._INTEGER_()
+                self.ast['repeat'] = self.last_node
                 self._token('times')
             self._token('within')
             self._time_limit_()
+            self.ast['limit'] = self.last_node
+
+        self.ast._define(
+            ['test', 'repeat', 'limit'],
+            []
+        )
 
     @graken()
     def _time_limit_(self):
@@ -173,22 +191,20 @@ class colinoParser(Parser):
 
     @graken()
     def _action_list_(self):
-        with self._choice():
-            with self._option():
+        self._action_()
+        self.ast.setlist('@', self.last_node)
 
-                def block0():
-                    self._action_()
-                    self._token(';')
-                self._closure(block0)
-                self._action_()
-            with self._option():
-                self._action_()
-            self._error('no available options')
+        def block1():
+            self._token(';')
+            self._action_()
+            self.ast.setlist('@', self.last_node)
+        self._closure(block1)
 
     @graken()
     def _action_(self):
         self._token('action')
         self._identifier_()
+        self.ast['@'] = self.last_node
 
     @graken()
     def _identifier_(self):
@@ -196,7 +212,7 @@ class colinoParser(Parser):
 
     @graken()
     def _FRAGMENT_(self):
-        self._pattern(r'[a-z]+')
+        self._pattern(r'[a-zA-Z][a-zA-Z0-9]+')
 
     @graken()
     def _INTEGER_(self):

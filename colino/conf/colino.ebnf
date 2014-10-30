@@ -9,15 +9,15 @@ configuration =
     ;
 
 rule =
-    'rule' identifier condition_list action_list 'end'
+    'rule' name:identifier conditions:condition_list actions:action_list 'end'
     ;
 
 condition_list =
-    {condition ';'} condition
+    @+:condition {';' @+:condition }
     ;
 
 condition =
-    'match' test [ [ 'repeated' INTEGER 'times' ] 'within' time_limit ] 
+    'match' test:test [ [ 'repeated' repeat:INTEGER 'times' ] 'within' limit:time_limit ] 
     ;
 
 time_limit =
@@ -64,14 +64,13 @@ expr =
     ;
 
 action_list =
-    { action  ';' } action
-    | action
+    @+:action { ';' @+:action }
     ;
 
 
 (* TODO action parameters *)
 action =
-     'action' identifier
+     'action' @:identifier
      ;
 
 
@@ -81,7 +80,7 @@ identifier  =
     ;
 
 FRAGMENT = 
-    ?/[a-z]+/? 
+    ?/[a-zA-Z][a-zA-Z0-9]+/? 
     ;
 
 INTEGER =
