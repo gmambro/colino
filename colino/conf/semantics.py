@@ -1,65 +1,31 @@
 # -*- coding: utf-8 -*-
+
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from colino.conf.model import Rule
 
-class ColinoSemantics(object):
+class SemanticCheck(object):
+    """Traverse a model and preform consistency checks"""
 
-    ## def ESC(self, ast):
-    ##    return ast
+    def __init__(self):
+        self._errors = []
     
-    def STRING(self, ast):
-        return "".join(ast)
-    
-	## def INTEGER(self, ast):
-	## 	pass
-    
-	## def REGEX(self, ast):
-	## 	pass
-    
-    ## def FRAGMENT(self, ast):
-    ##  return ast   
-    
-	## def action(self, ast):
-	## 	pass
-    
-	## def action_list(self, ast):
-	## 	pass
-    
-	## def and_test(self, ast):
-	## 	pass
-    
-	## def comp_op(self, ast):
-	## 	pass
-    
-	## def comparison(self, ast):
-	## 	pass
-    
-	## def condition(self, ast):
-	## 	pass
-    
-	## def condition_list(self, ast):
-	## 	pass
+    def check_conditions(self, conditions):        
+        if len(conditions) > 1:
+            for cond in conditions[1:]:
+                if cond.within is None:
+                    print("error in ",cond.line_info)
+                    raise SemanticError("chained condition without time contraint",
+                                        cond.line_info)
+                else:
+                    print(cond.within)
 
-    ## def configuration(self, ast):
-	## 	pass
 
-    ## def expr(self, ast):
-	## 	pass
 
-    ## def identifier(self, ast):
-	## 	pass
 
-    ## def not_test(self, ast):
-	## 	pass
 
-    ## def or_test(self, ast):
-	## 	pass
 
-    def rule(self, ast):
-        return Rule(ast['name'], ast['conditions'], ast['actions'])
-    
-	## def test(self, ast):
-	## 	pass
+
+
 

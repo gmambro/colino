@@ -4,6 +4,8 @@
 
 *)
 
+(* TODO: sources, channels, expressions *)
+
 configuration =
     rules:{rule}+ $
     ;
@@ -13,15 +15,16 @@ rule =
     ;
 
 condition_list =
-    @+:condition {';' @+:condition }
+    { condition }+
     ;
 
 condition =
-    'match' test:test [ [ 'repeated' repeat:INTEGER 'times' ] 'within' limit:time_limit ] 
+    'match' [ [ repeat:INTEGER 'times' ] 'within' limit:time_limit ] test:test
+    [ 'set' assignment_list ]
     ;
 
 time_limit =
-    INTEGER ( 's' | 'm' | 'h' )
+    value:INTEGER unit:( 's' | 'm' | 'h' )
     ;
 
 test = 
@@ -29,23 +32,23 @@ test =
     ;
 
 or_test =
-    and_test {'or' and_test}
+    @+:and_test {'or' @+:and_test}
     ;
 
 and_test =
-    not_test {'and' not_test}
+    @+:not_test {'and' @+:not_test}
     ;
 
 not_test =
-    'not' not_test | comparison
+    'not' not:not_test | comparison:comparison
     ;
 
 comparison =
-    identifier comp_op expr
-    | identifier '~'   REGEX
-    | identifier '!~'  REGEX
+      left:identifier op:comp_op right:expr
+    | left:identifier op:'~'  right:REGEX
+    | left:identifier op:'!~' right:REGEX
     ;
-
+    
 comp_op =
       '<'
     | '>'
@@ -63,24 +66,32 @@ expr =
     | identifier
     ;
 
-action_list =
-    @+:action { ';' @+:action }
+
+assignment_list =
+    { @+:assignment }
     ;
 
+assignment =
+    identifier '=' expr
+    ;
+
+action_list =
+    { @+:action }+
+    ;
 
 (* TODO action parameters *)
 action =
      'action' @:identifier
      ;
 
+identifier = IDENTIFIER ;
 
-(* just for test *)
-identifier  =
-    FRAGMENT
+IDENTIFIER =
+    ?/[a-zA-Z][a-zA-Z0-9]+/? 
     ;
 
-FRAGMENT = 
-    ?/[a-zA-Z][a-zA-Z0-9]+/? 
+SCOPED_IDENTIFIER =
+    ?/[a-zA-Z][a-zA-Z0-9]+(\.[a-zA-Z][a-zA-Z0-9]+)+/? 		  
     ;
 
 INTEGER =

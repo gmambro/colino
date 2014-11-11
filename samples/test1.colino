@@ -1,0 +1,5 @@
+rule test
+  match msg = 'hello'
+  match msg = 'world'
+  action nil
+end

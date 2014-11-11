@@ -15,7 +15,7 @@ from __future__ import print_function, division, absolute_import, unicode_litera
 from grako.parsing import graken, Parser
 
 
-__version__ = (2014, 10, 30, 21, 12, 29, 3)
+__version__ = (2014, 11, 10, 22, 22, 12, 0)
 
 __all__ = [
     'colinoParser',
@@ -65,38 +65,37 @@ class colinoParser(Parser):
 
     @graken()
     def _condition_list_(self):
-        self._condition_()
-        self.ast.setlist('@', self.last_node)
 
-        def block1():
-            self._token(';')
+        def block0():
             self._condition_()
-            self.ast.setlist('@', self.last_node)
-        self._closure(block1)
+        self._positive_closure(block0)
 
     @graken()
     def _condition_(self):
         self._token('match')
-        self._test_()
-        self.ast['test'] = self.last_node
         with self._optional():
             with self._optional():
-                self._token('repeated')
                 self._INTEGER_()
                 self.ast['repeat'] = self.last_node
                 self._token('times')
             self._token('within')
             self._time_limit_()
             self.ast['limit'] = self.last_node
+        self._test_()
+        self.ast['test'] = self.last_node
+        with self._optional():
+            self._token('set')
+            self._assignment_list_()
 
         self.ast._define(
-            ['test', 'repeat', 'limit'],
+            ['repeat', 'limit', 'test'],
             []
         )
 
     @graken()
     def _time_limit_(self):
         self._INTEGER_()
+        self.ast['value'] = self.last_node
         with self._group():
             with self._choice():
                 with self._option():
@@ -106,6 +105,12 @@ class colinoParser(Parser):
                 with self._option():
                     self._token('h')
                 self._error('expecting one of: h m s')
+        self.ast['unit'] = self.last_node
+
+        self.ast._define(
+            ['value', 'unit'],
+            []
+        )
 
     @graken()
     def _test_(self):
@@ -114,20 +119,24 @@ class colinoParser(Parser):
     @graken()
     def _or_test_(self):
         self._and_test_()
+        self.ast.setlist('@', self.last_node)
 
-        def block0():
+        def block1():
             self._token('or')
             self._and_test_()
-        self._closure(block0)
+            self.ast.setlist('@', self.last_node)
+        self._closure(block1)
 
     @graken()
     def _and_test_(self):
         self._not_test_()
+        self.ast.setlist('@', self.last_node)
 
-        def block0():
+        def block1():
             self._token('and')
             self._not_test_()
-        self._closure(block0)
+            self.ast.setlist('@', self.last_node)
+        self._closure(block1)
 
     @graken()
     def _not_test_(self):
@@ -135,26 +144,47 @@ class colinoParser(Parser):
             with self._option():
                 self._token('not')
                 self._not_test_()
+                self.ast['not_'] = self.last_node
             with self._option():
                 self._comparison_()
+                self.ast['comparison'] = self.last_node
             self._error('no available options')
+
+        self.ast._define(
+            ['not', 'comparison'],
+            []
+        )
 
     @graken()
     def _comparison_(self):
         with self._choice():
             with self._option():
                 self._identifier_()
+                self.ast['left'] = self.last_node
                 self._comp_op_()
+                self.ast['op'] = self.last_node
                 self._expr_()
+                self.ast['right'] = self.last_node
             with self._option():
                 self._identifier_()
+                self.ast['left'] = self.last_node
                 self._token('~')
+                self.ast['op'] = self.last_node
                 self._REGEX_()
+                self.ast['right'] = self.last_node
             with self._option():
                 self._identifier_()
+                self.ast['left'] = self.last_node
                 self._token('!~')
+                self.ast['op'] = self.last_node
                 self._REGEX_()
+                self.ast['right'] = self.last_node
             self._error('no available options')
+
+        self.ast._define(
+            ['left', 'op', 'right'],
+            []
+        )
 
     @graken()
     def _comp_op_(self):
@@ -190,15 +220,26 @@ class colinoParser(Parser):
             self._error('no available options')
 
     @graken()
-    def _action_list_(self):
-        self._action_()
-        self.ast.setlist('@', self.last_node)
+    def _assignment_list_(self):
 
-        def block1():
-            self._token(';')
+        def block0():
+            self._assignment_()
+            self.ast.setlist('@', self.last_node)
+        self._closure(block0)
+
+    @graken()
+    def _assignment_(self):
+        self._identifier_()
+        self._token('=')
+        self._expr_()
+
+    @graken()
+    def _action_list_(self):
+
+        def block0():
             self._action_()
             self.ast.setlist('@', self.last_node)
-        self._closure(block1)
+        self._positive_closure(block0)
 
     @graken()
     def _action_(self):
@@ -208,11 +249,15 @@ class colinoParser(Parser):
 
     @graken()
     def _identifier_(self):
-        self._FRAGMENT_()
+        self._IDENTIFIER_()
 
     @graken()
-    def _FRAGMENT_(self):
+    def _IDENTIFIER_(self):
         self._pattern(r'[a-zA-Z][a-zA-Z0-9]+')
+
+    @graken()
+    def _SCOPED_IDENTIFIER_(self):
+        self._pattern(r'[a-zA-Z][a-zA-Z0-9]+(\.[a-zA-Z][a-zA-Z0-9]+)+')
 
     @graken()
     def _INTEGER_(self):
@@ -315,6 +360,12 @@ class colinoSemantics(object):
     def expr(self, ast):
         return ast
 
+    def assignment_list(self, ast):
+        return ast
+
+    def assignment(self, ast):
+        return ast
+
     def action_list(self, ast):
         return ast
 
@@ -324,7 +375,10 @@ class colinoSemantics(object):
     def identifier(self, ast):
         return ast
 
-    def FRAGMENT(self, ast):
+    def IDENTIFIER(self, ast):
+        return ast
+
+    def SCOPED_IDENTIFIER(self, ast):
         return ast
 
     def INTEGER(self, ast):
@@ -340,7 +394,7 @@ class colinoSemantics(object):
         return ast
 
 
-def main(filename, startrule, trace=False, whitespace=None):
+def main(filename, startrule, trace=False, whitespace=None, nameguard=None):
     import json
     with open(filename) as f:
         text = f.read()
@@ -350,7 +404,8 @@ def main(filename, startrule, trace=False, whitespace=None):
         startrule,
         filename=filename,
         trace=trace,
-        whitespace=whitespace)
+        whitespace=whitespace,
+        nameguard=nameguard)
     print('AST:')
     print(ast)
     print()
@@ -374,6 +429,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Simple parser for colino.")
     parser.add_argument('-l', '--list', action=ListRules, nargs=0,
                         help="list all rules and exit")
+    parser.add_argument('-n', '--no-nameguard', action='store_true',
+                        dest='no_nameguard',
+                        help="disable the 'nameguard' feature")
     parser.add_argument('-t', '--trace', action='store_true',
                         help="output trace information")
     parser.add_argument('-w', '--whitespace', type=str, default=string.whitespace,
@@ -387,6 +445,7 @@ if __name__ == '__main__':
         args.file,
         args.startrule,
         trace=args.trace,
-        whitespace=args.whitespace
+        whitespace=args.whitespace,
+        nameguard=not args.no_nameguard
     )
 
