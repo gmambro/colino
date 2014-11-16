@@ -15,7 +15,7 @@ from __future__ import print_function, division, absolute_import, unicode_litera
 from grako.parsing import graken, Parser
 
 
-__version__ = (2014, 11, 10, 22, 22, 12, 0)
+__version__ = (2014, 11, 15, 13, 55, 57, 5)
 
 __all__ = [
     'colinoParser',
@@ -123,6 +123,7 @@ class colinoParser(Parser):
 
         def block1():
             self._token('or')
+            self._cut()
             self._and_test_()
             self.ast.setlist('@', self.last_node)
         self._closure(block1)
@@ -134,6 +135,7 @@ class colinoParser(Parser):
 
         def block1():
             self._token('and')
+            self._cut()
             self._not_test_()
             self.ast.setlist('@', self.last_node)
         self._closure(block1)
@@ -253,11 +255,11 @@ class colinoParser(Parser):
 
     @graken()
     def _IDENTIFIER_(self):
-        self._pattern(r'[a-zA-Z][a-zA-Z0-9]+')
+        self._pattern(r'[a-zA-Z][a-zA-Z0-9]*')
 
     @graken()
     def _SCOPED_IDENTIFIER_(self):
-        self._pattern(r'[a-zA-Z][a-zA-Z0-9]+(\.[a-zA-Z][a-zA-Z0-9]+)+')
+        self._pattern(r'[a-zA-Z][a-zA-Z0-9]*(\.[a-zA-Z][a-zA-Z0-9]*)+')
 
     @graken()
     def _INTEGER_(self):

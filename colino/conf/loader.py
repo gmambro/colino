@@ -43,19 +43,20 @@ class ModelBuilder(object):
     def and_test(self, ast):
         if len(ast) == 1:
             return ast
-        else:
-            BoolOperation('and', ast[0], ast[2])
-
+        model = BoolOperation('and', *ast)
+        return model
 
     def or_test(self, ast):
         if len(ast) == 1:
             return ast
-        else:
-            return BoolOperation('or', ast[0], ast[2])
+        model = BoolOperation('or', *ast)
+        return model
     
     def not_test(self, ast):        
         if ast['not'] is not None:
-            return BoolOperation('not', ast['not'])
+            model = BoolOperation('not', ast['not'])
+            self._add_line_info(model, ast)
+            return model
         else:
             return ast.comparison
     
@@ -99,11 +100,13 @@ class ModelBuilder(object):
         model = Rule(ast.name, ast.conditions, ast.actions)
         self._add_line_info(model, ast)
         return model
-
         
     def test(self, ast):
         return ast
 
+    def configuration(self, ast):
+        model = Configuration(ast.rules)
+        return model
 
 class ConfLoader(object):
 

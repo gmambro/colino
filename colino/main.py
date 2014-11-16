@@ -39,8 +39,11 @@ def main():
                         help="the configuration file")
     args = parser.parse_args()
     
-    load_conf(args.configuration)
+    conf = load_conf(args.configuration)
 
+    import pprint
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(conf)
     
         
 if __name__ == '__main__':

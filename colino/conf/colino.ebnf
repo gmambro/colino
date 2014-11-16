@@ -32,11 +32,11 @@ test =
     ;
 
 or_test =
-    @+:and_test {'or' @+:and_test}
+    @+:and_test {'or' ~ @+:and_test}*
     ;
 
 and_test =
-    @+:not_test {'and' @+:not_test}
+    @+:not_test {'and' ~ @+:not_test}*
     ;
 
 not_test =
@@ -87,11 +87,11 @@ action =
 identifier = IDENTIFIER ;
 
 IDENTIFIER =
-    ?/[a-zA-Z][a-zA-Z0-9]+/? 
+    ?/[a-zA-Z][a-zA-Z0-9]*/? 
     ;
 
 SCOPED_IDENTIFIER =
-    ?/[a-zA-Z][a-zA-Z0-9]+(\.[a-zA-Z][a-zA-Z0-9]+)+/? 		  
+    ?/[a-zA-Z][a-zA-Z0-9]*(\.[a-zA-Z][a-zA-Z0-9]*)+/? 		  
     ;
 
 INTEGER =
