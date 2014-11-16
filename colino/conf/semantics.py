@@ -8,9 +8,13 @@ from __future__ import (absolute_import, division, print_function,
 class SemanticCheck(object):
     """Traverse a model and preform consistency checks"""
 
-    def __init__(self):
+    def __init__(self, model):
+        self.model = model
         self._errors = []
-    
+
+    def check_model(self):
+        pass
+        
     def check_conditions(self, conditions):        
         if len(conditions) > 1:
             for cond in conditions[1:]:
